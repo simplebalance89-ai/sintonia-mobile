@@ -174,13 +174,14 @@ async function sendMessage(){
   isStreaming=true;
   document.getElementById('send-btn').disabled=true;
   var thinking=appendBubble('thinking','Thinking...');
+  var thinkTimer=0;var thinkInt=setInterval(function(){thinkTimer++;if(thinkTimer>=3)thinking.textContent='Thinking... '+thinkTimer+'s';if(thinkTimer>=8)thinking.textContent='Waking up server... '+thinkTimer+'s'},1000);
   try{
     var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:storedPin,messages:messages})});
     var data=await r.json();
-    thinking.remove();
+    clearInterval(thinkInt);thinking.remove();
     if(data.error){appendBubble('assistant','Error: '+data.error)}
     else{messages.push({role:'assistant',content:data.reply});appendBubble('assistant',data.reply);saveHistory()}
-  }catch(err){thinking.remove();appendBubble('assistant','Connection error: '+err.message)}
+  }catch(err){clearInterval(thinkInt);thinking.remove();appendBubble('assistant','Connection error: '+err.message)}
   isStreaming=false;
   document.getElementById('send-btn').disabled=false;
 }
@@ -237,6 +238,7 @@ if(savedPin){
   fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:savedPin})}).then(function(r){if(r.ok)enterChat()}).catch(function(){});
 }
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}
+setInterval(function(){fetch('/api/health').catch(function(){})},840000)
 </script>
 </body>
 </html>
