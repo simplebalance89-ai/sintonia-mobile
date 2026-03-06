@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: sintonia-mobile
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: AZURE_OPENAI_ENDPOINT
+        value: https://pwgcerp-9302-resource.openai.azure.com/
+      - key: AZURE_OPENAI_KEY
+        sync: false
+      - key: AZURE_OPENAI_MODEL
+        value: gpt-4.1-mini
+      - key: APP_PIN
+        sync: false
